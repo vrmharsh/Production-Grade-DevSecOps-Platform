@@ -1,0 +1,34 @@
+#stage-1:
+FROM node:18.19.1 AS build
+
+WORKDIR /my-portfolio-app
+
+# They are Blueprint of dependencies, they define what packages you need exact versions (lock file)
+COPY package-lock.json package.json /my-portfolio-app/
+
+# actual node_modules will be installed
+RUN  npm install
+
+COPY . .
+
+#first dot means (local machine) backend/ folder
+#Second dot means inside the container
+
+
+#stage-2:
+FROM node:18.19.1-alpine
+
+WORKDIR /my-portfolio-app
+
+COPY --from=build /my-portfolio-app .
+
+
+EXPOSE 5000
+
+#CMD ["node","index.js"]
+
+# can only append by ENTRYPOINT, it can be overridden by "docker run --entrypoint bash image" but then node application will not start since node is replaced.
+ENTRYPOINT ["node"]   
+
+# can only over-ride with CMD
+CMD ["index.js"]

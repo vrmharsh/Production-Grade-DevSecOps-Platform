@@ -1,0 +1,62 @@
+
+ nav{
+    width:100px;
+    height:101vh;
+    background-color: black;
+    display: flex;
+    justify-content:left;
+    margin-top: -8px; 
+   }   
+   
+   img{
+    width:90px;
+    height:120px;
+  } 
+  
+  ul{
+    width:15%;
+    display:block;
+    justify-content:center; 
+     margin-left:-30px;
+     line-height: 10px; 
+   } 
+  
+   ul li{
+    list-style:none;
+    margin-bottom: 40px;
+  } 
+  
+   ul li a{
+    color:rgb(251, 190, 8); 
+    padding:7px 14px;
+    margin: 0px 10px; 
+    display: list-item;
+    line-height: 20px;  
+    text-decoration: none;
+    letter-spacing: 1px;  
+   } 
+  
+   .l1{
+    margin-bottom:150px;
+   } 
+
+   
+.home:hover{
+  color:bisque
+}
+
+.project:hover{
+    color:bisque
+  }
+
+  .blogs:hover{
+    color:bisque
+  }
+  
+ .contact:hover{
+  color:bisque
+}
+
+.about:hover{
+  color:bisque
+}

@@ -1,0 +1,23 @@
+#stage-1: build stage
+
+FROM node:18.19.1 AS build
+
+WORKDIR /my-portfolio-app
+
+COPY package-lock.json package.json /my-portfolio-app/
+
+RUN npm install
+
+COPY . .
+
+#stage-2:
+
+FROM node:18.19.1-alpine 
+
+WORKDIR /my-portfolio-app
+
+COPY --from=build /my-portfolio-app .
+
+EXPOSE 3000
+
+CMD ["npm","start"]

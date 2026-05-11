@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "frontend-app-deployment"
+  namespace: "dev-rolling-update"
+  labels: 
+     app: frontend-lb
+spec:
+  replicas: 4
+
+  strategy: 
+      type: RollingUpdate
+      
+      rollingUpdate: 
+        maxUnavailable: 1
+        maxSurge: 2
+
+  selector: 
+      matchLabels:
+        app: frontend-lb
+  template: 
+      metadata:
+        labels:
+          app: frontend-lb
+      spec:
+        containers: 
+        - name: "portfolio-frontend-container"
+          image: harshvrm10/portfolio-app-repo:portfolio-app-frontend-v3
+          ports:
+           - containerPort: 3000
+
+          resources:
+            requests:
+             cpu: "100m"
+             memory: "256Mi"
+
+            limits:
+             cpu: "500m"
+             memory: "1Gi"
+
+          readinessProbe:
+            httpGet:
+            #for frontend, below is usually used since the frontend is always expose via some web server and this is the path.
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3 
+
+          livenessProbe:
+            httpGet: 
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+              
+            timeoutSeconds: 5
+            failureThreshold: 3 
+          
+
+
+
+
+

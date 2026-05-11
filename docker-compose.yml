@@ -1,0 +1,31 @@
+services:
+  frontend-app:
+   image: "harshvrm10/portfolio-app-repo:portfolio-app-frontend"
+   container_name: "frontend-container"
+   networks:
+    - my-networks
+   ports: 
+    - "3000:3000"
+
+  backend-app:
+   image: "harshvrm10/portfolio-app-repo:portfolio-app-backend"
+   container_name: "backend-container"
+   ports: 
+    - "5000:5000"
+
+   #environment:
+   # - MYDATABASE={MYDATABASE}
+   # - PORT={PORT}
+
+   env_file:
+    - ./backend/.env
+
+   networks:
+    - my-networks
+  
+networks:
+  my-networks:
+
+
+
+

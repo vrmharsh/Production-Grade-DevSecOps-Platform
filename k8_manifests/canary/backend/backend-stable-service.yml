@@ -1,0 +1,20 @@
+apiVersion: v1
+
+kind: Service
+
+metadata:
+  name: "backend-stable-service"
+  namespace: "stage-canary"
+
+spec:
+
+  selector:
+    app: "backend-stable-label"
+
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+ 
+
+  type: ClusterIP

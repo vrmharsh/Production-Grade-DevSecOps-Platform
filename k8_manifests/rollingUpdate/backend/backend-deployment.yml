@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: "backend-app-deployment"
+  namespace: "dev-rolling-update"
+  labels: 
+    app: backend-lb
+spec:
+  replicas: 4 
+  
+  strategy:
+    type: RollingUpdate
+
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+
+  selector:
+   matchLabels:
+    app: backend-lb
+
+  template: 
+   
+    metadata:
+      labels:
+         app: backend-lb
+    
+    spec:
+      containers:
+       - name: "portfolio-backend-container"
+         image: harshvrm10/portfolio-app-repo:portfolio-app-backend-v4
+         ports:
+         - containerPort: 5000
+
+         resources:
+           requests:
+             cpu: "100m"
+             memory: "128Mi"
+
+           limits:
+             cpu: "250m"
+             memory: "256Mi"
+
+         readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3 
+
+         livenessProbe:
+            httpGet: 
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+              
+            timeoutSeconds: 5
+            failureThreshold: 3 
+
+
+         env: 
+         - name: PORT
+           value: "5000"
+           
+         - name: MYDATABASE
+           valueFrom:
+              secretKeyRef:
+               name: "backend-secrets"
+               key: MYDATABASE
+         
+
+#  Probes explanation:
+#            httpGet:
+#             path: /health         API endpoint defined in the backend router -->> user.js
+#              port: 5000           container port since the container is expose at this port and these probes actually performs health checks at the container levels.
+#            initialDelaySeconds: 15    delay of 15 seconds after the first probe
+#            periodSeconds: 20          first probe start within 20 seconds then as per above wait for 15 seconds until this current probe is completed.
+            
+#            timeoutSeconds: 5       if until 5 seconds, we get no response then mark the pods as un-healthy.
+#            successThreshold: 1     mostly needed in readiness probe which means that if one health check is successfull then mark the pod ready to receive the traffic.
+#            failureThreshold: 3     probe must fail 3 times before k9 acts.if after three tries, there is no response then do not send the traffic at this pod.

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+   name: "frontend-blue-deployment"
+   namespace: "prod-blue-green"
+   labels: 
+     app: frontend-blue-deployment-label
+
+spec:
+   
+   replicas: 2
+
+   selector: 
+     matchLabels:
+       app: frontend-blue-deployment-label
+       version: blue
+
+   template:
+
+     metadata:
+       labels: 
+         app: frontend-blue-deployment-label
+         version: blue
+
+     spec:
+       containers: 
+       - name: "frontend-blue-container"
+         image: harshvrm10/portfolio-app-repo:portfolio-app-frontend-v3
+         ports: 
+          - containerPort: 3000 
+
+         resources:
+          requests:
+           cpu: "200m"
+           memory: "512Mi"
+
+          limits:
+           cpu: "400m"
+           memory: "1Gi"    
+
+         readinessProbe:
+           httpGet:
+             path: /
+             port: 3000
+           initialDelaySeconds: 30
+           periodSeconds: 10
+            
+           timeoutSeconds: 5 
+           successThreshold: 1
+           failureThreshold: 5
+
+         livenessProbe:
+           httpGet:
+             path: /
+             port: 3000
+           initialDelaySeconds: 45
+           periodSeconds: 20
+            
+           timeoutSeconds: 5 
+           failureThreshold: 5
+         
+         
+      
+
+      
+      
+     
+

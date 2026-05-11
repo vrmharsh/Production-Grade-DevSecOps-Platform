@@ -1,0 +1,50 @@
+.h{
+  background-image: url(./Images/Portfolio.png);
+  background-size:cover;
+  }
+
+
+.Welcome{
+  height: 40vh;
+  display: flex;
+  justify-content: center; 
+  flex-direction:column;
+  margin-left: 395px;
+  margin-top: -80px;
+  color:rgb(149, 142, 123);
+  }   
+
+.Welcome h1{
+  font-size: 3rem;
+  text-transform: capitalize;
+  text-align: center;
+  text-shadow:1px 2px 1px black;
+  }
+ 
+.Welcome h2{
+  font-size: 2rem;
+  text-transform: capitalize;
+  } 
+
+.Welcome h2 span{
+  position: relative;
+  color:rgb(251, 190, 8);
+  }
+   
+.Welcome h2 span::after{
+  content:"";
+  position:absolute;
+  left: 0%;
+  height: 100%;
+  width: 100%;
+  border-left: 2px solid rgb(251, 190, 8);
+  animation: typing 2s steps(15) infinite; 
+  background:#fbf3e4; 
+  } 
+
+ @keyframes typing{ 
+ 100%{
+ left: 100%; 
+ }
+} 
+

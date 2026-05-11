@@ -1,0 +1,17 @@
+ /* *{
+  margin:0px;
+  padding:0px;
+  font-family:"Josefin Sans", san-serif;
+}  */
+ 
+
+
+.App {
+  width: 100%;
+  min-height:99vh; 
+  display:flex;
+  text-align:center;
+}
+
+
+ 

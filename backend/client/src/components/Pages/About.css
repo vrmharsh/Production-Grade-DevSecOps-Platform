@@ -1,0 +1,110 @@
+
+.skills{
+  text-shadow:1px 1px 1px black;
+}
+
+article{
+  text-align: justify;                       
+}
+
+.icons{
+   column-count: 4;
+}
+
+
+.ht{
+  column-count:4;
+}
+
+
+.htm{
+  width: 70%;
+  background-color: rgb(247, 220, 185);
+}
+
+.av-1{
+  width:80%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-2{
+  width:80%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-3{
+  width:70%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-4{
+  width:70%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-5{
+  width:60%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+
+.av-6{
+  width:60%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-7{
+  width:80%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-7{
+  width:50%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.av-8{
+  width:40%;
+  background-color:rgb(130, 6, 245);
+  
+}
+
+.icons{
+  display: inline-block;
+  font-size: 25px;
+  column-count: 4;
+  margin-top: 120px;
+  }
+  
+
+.icons li{
+  padding:5px;
+  margin:5px;
+  border:5px;
+  }
+  
+.facebook{
+  color: rgb(66,103,178);
+  margin-top: -4px;
+  }
+  
+.instagram{
+  color:rgb(193,53,13);
+  }
+  
+.github{
+  color:rgb(10,10,10);
+  }
+  
+.linkedin{
+  color:rgb(0,119,181);
+  }
+  
