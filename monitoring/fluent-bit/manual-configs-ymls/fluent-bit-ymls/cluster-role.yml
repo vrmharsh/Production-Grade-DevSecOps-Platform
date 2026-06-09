@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+
+metadata:
+  name: "cluster-role-for-fb-sa"
+#  namespace: "monitoring"  not needed because cluster role is for all namespaces and for the normal role, we can have the specific namespaces.
+
+rules:
+# core k8 api groups is represented by an empty string.
+  - apiGroups: [""]
+
+    resources:
+     - namespaces
+     - pods
+     - nodes
+
+    verbs: 
+     - get
+     - list 
+     - watch

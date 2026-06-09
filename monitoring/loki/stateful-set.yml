@@ -1,0 +1,67 @@
+# stateful set will mount the config_map on the mentioned storage like local or s3 or any other storage in cloud.
+# and config_map has the loki-configurations and all.
+
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: "statefull-set-for-config-map"
+  namespace: "monitoring"
+  labels: 
+    app: "statefull-set-for-config-map-label"
+
+spec:
+   
+  serviceName: loki
+
+  replicas: 1
+
+  selector:
+   matchLabels:
+    app: "statefull-set-for-config-map-label"
+
+  template:
+
+    metadata:
+      labels: 
+        app: "statefull-set-for-config-map-label"
+    
+    spec:
+      containers:
+        - name: "statefull-set-for-config-map-container"
+          image: grafana/loki:2.9.8
+          ports: 
+           - containerPort: 3100
+          
+          args:
+           - -config.file=/etc/loki/config/loki-config.yml
+           - -config.expand-env=true
+
+          volumeMounts:
+           - name: config
+             mountPath: /etc/loki/config
+           - name: loki-data
+             mountPath: /loki/storage
+           - name: tmp
+             mountPath: /tmp
+          
+      volumes:
+           - name: config
+             configMap:
+               name: config-map-for-loki-configs 
+
+           - name: tmp
+             emptyDir: {}
+
+# persistent volumes claims because our loki-data needs a persistent volume space either in local or s3 or any other storage used in the actual production.
+  volumeClaimTemplates:
+     - metadata: 
+        name: loki-data
+
+       spec:
+        accessModes:
+          - ReadWriteOnce
+        
+        resources:
+         requests:
+          storage: 1Gi

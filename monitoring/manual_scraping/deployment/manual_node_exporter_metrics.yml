@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+
+kind: DaemonSet
+
+# Daemon set because this is node level metrics and this pod will get deplopyed one per each node which is needed over here.
+
+metadata:
+   name: "manual-node-exporter"
+   namespace: "prod-blue-green"
+   labels:
+    app: "manual-node-exporter-label"
+
+spec:
+
+   selector:
+    matchLabels:
+      app: "manual-node-exporter-label"
+    
+    
+   template:
+    
+    metadata:
+      labels:
+       app: "manual-node-exporter-label"
+
+    spec:
+      containers:
+       - name: "manual-node-exporter-for-blue-green"
+         image: prom/node-exporter:latest
+         ports:
+         - containerPort: 9100

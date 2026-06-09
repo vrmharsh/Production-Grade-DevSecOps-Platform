@@ -1,0 +1,110 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: warning-slack
+
+  group_by:
+    - alertname
+    - namespace
+    - severity
+
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 2h
+
+  routes:
+
+    # Critical alerts
+    - matchers:
+        - severity="critical"
+      receiver: critical-slack
+
+    # Warning alerts
+    - matchers:
+        - severity="warning"
+      receiver: warning-slack
+
+    # Info alerts
+    - matchers:
+        - severity="info"
+      receiver: info-slack
+
+    # Ignore watchdog/infoinhibitor
+    - matchers:
+        - severity="none"
+      receiver: "null"
+
+receivers:
+
+  # Critical alerts
+  - name: critical-slack
+    slack_configs:
+      - api_url: <CRITICAL_SLACK_WEBHOOK>
+        channel: '#critical_alerts'
+        send_resolved: true
+        title: ' [CRITICAL] {{ .CommonLabels.alertname }}'
+        text: |
+          *Cluster:* {{ .CommonLabels.cluster }}
+          *Namespace:* {{ .CommonLabels.namespace }}
+          *Severity:* {{ .CommonLabels.severity }}
+
+          *Summary:*
+          {{ .CommonAnnotations.summary }}
+
+          *Description:*
+          {{ .CommonAnnotations.description }}
+
+  # Warning alerts
+  - name: warning-slack
+    slack_configs:
+      - api_url: <WARNING_SLACK_WEBHOOK>
+        channel: '#warning_alerts'
+        send_resolved: true
+        title: ' [WARNING] {{ .CommonLabels.alertname }}'
+        text: |
+          *Cluster:* {{ .CommonLabels.cluster }}
+          *Namespace:* {{ .CommonLabels.namespace }}
+          *Severity:* {{ .CommonLabels.severity }}
+
+          *Summary:*
+          {{ .CommonAnnotations.summary }}
+
+  # Info alerts
+  - name: info-slack
+    slack_configs:
+      - api_url: <INFO_SLACK_WEBHOOK>
+        channel: '#info_alerts'
+        send_resolved: true
+        title: ' [INFO] {{ .CommonLabels.alertname }}'
+        text: |
+          *Summary:*
+          {{ .CommonAnnotations.summary }}
+
+  # Null receiver
+  - name: "null"
+
+inhibit_rules:
+
+  # Suppress warning alerts if critical exists
+  - source_matchers:
+      - severity="critical"
+
+    target_matchers:
+      - severity="warning"
+
+    equal:
+      - namespace
+      - alertname
+
+  # Suppress info alerts if warning/critical exists
+  - source_matchers:
+      - severity=~"warning|critical"
+
+    target_matchers:
+      - severity="info"
+
+    equal:
+      - namespace
+      - alertname
+

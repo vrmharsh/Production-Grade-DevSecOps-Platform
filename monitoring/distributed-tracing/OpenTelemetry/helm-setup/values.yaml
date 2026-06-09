@@ -1,0 +1,57 @@
+mode: deployment
+
+replicaCount: 1
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+
+alternateConfig: true
+
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    hostPort: 4317
+    protocol: TCP
+
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    hostPort: 4318
+    protocol: TCP
+
+config:
+  receivers:
+    otlp:
+      protocols:
+
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+        http:
+          endpoint: 0.0.0.0:4318
+
+          cors:
+            allowed_origins:
+              - "http://prod-blue-green.internal"
+              - "http://stage-canary.internal"
+              - "http://dev-rolling-update.internal"
+
+  processors:
+    batch: {}
+
+  exporters:
+    otlp:
+      endpoint: tempo.monitoring:4317
+
+      tls:
+        insecure: true
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp]

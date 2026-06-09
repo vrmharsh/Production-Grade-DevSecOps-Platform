@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+
+kind: DaemonSet
+
+# Daemon set because this is node level metrics and this pod will get deplopyed one per each node which is needed over here.
+
+metadata:
+   name: "manual-cadvisor-metrics"
+   namespace: "prod-blue-green"
+   labels:
+    app: "manual-cadvisor-metrics-label"
+
+spec:
+
+   selector:
+    matchLabels:
+      app: "manual-cadvisor-metrics-label"
+    
+    
+   template:
+    
+    metadata:
+      labels:
+       app: "manual-cadvisor-metrics-label"
+
+    spec:
+      containers:
+       - name: "manual-cadvisor-metrics-for-blue-green"
+         image: gcr.io/cadvisor/cadvisor:latest
+         ports:
+         - containerPort: 8080

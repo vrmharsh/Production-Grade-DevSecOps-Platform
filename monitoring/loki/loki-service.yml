@@ -1,0 +1,20 @@
+apiVersion: v1
+
+kind: Service
+
+metadata:
+ name: "loki-service"
+ namespace: "monitoring"
+
+spec:
+ 
+ selector:
+   app: "statefull-set-for-config-map-label"
+
+ ports:
+  - protocol: TCP
+    port: 3100
+    targetPort: 3100
+
+# for stateful applications we need headless type of service that will map the dns to the pods, it excludes the usage of load balancers or virtual ip and directly addresses the backend pod for loki or database dpending on the requirements. 
+ clusterIP: None

@@ -1,0 +1,80 @@
+# config-map yml was created earlier but k8 was unable to get process it because this config-map yml was unable to get the loki-config.
+# so then a new config-map was created directly from the loki-config which was the appended in this yml to get it visible into the VSCode.
+# command used was:  kubectl create configmap config-map-for-loki-configs --from-file=loki-config.yml  -n monitoring 
+# to get this into the vscode, the command was  kubectl get configmap config-map-for-loki-configs -n monitoring -o yaml > config-map.yml (name of the current yml in VSCode)
+# now the locally created config-map was deleted because we will use this imported config file now.
+
+apiVersion: v1
+data:
+  loki-config.yml: |
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9095
+
+    common:
+      path_prefix: /loki/storage
+
+      replication_factor: 1
+
+      ring:
+        kvstore:
+          store: inmemory
+
+    # most important section is the below config:
+    schema_config:
+      configs:
+        - from: "2026-01-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+
+          index:
+            prefix: loki_index_
+            period: 24h
+
+    storage_config:
+
+      filesystem:
+        directory: /loki/storage/chunks
+
+      tsdb_shipper:
+        active_index_directory: /loki/storage/index
+        cache_location: /loki/storage/index_cache
+
+    ingester:
+
+      wal:
+        enabled: true
+        dir: /loki/storage/wal
+
+      chunk_idle_period: 5m
+      chunk_retain_period: 30s
+      max_chunk_age: 1h
+
+    limits_config:
+      retention_period: 168h
+
+    compactor:
+      working_directory: /loki/storage/compactor
+
+      retention_enabled: true
+
+      delete_request_store: filesystem
+
+    ruler:
+      storage:
+        type: local
+
+        local:
+          directory: /loki/storage/rules
+
+      rule_path: /loki/storage/rules-temp
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-05-18T16:42:18Z"
+  name: config-map-for-loki-configs
+  namespace: monitoring
+  resourceVersion: "411840"
+  uid: 6038d76c-ea57-4ac4-a124-3230df40e9d3

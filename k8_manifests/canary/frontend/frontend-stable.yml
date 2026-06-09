@@ -10,7 +10,7 @@ metadata:
 
 spec:
 
-    replicas: 2
+    replicas: 1
 
     selector:
      matchLabels:
@@ -25,7 +25,7 @@ spec:
      spec:
         containers:
         - name: "frontend-stable-container"
-          image: harshvrm10/portfolio-app-repo:portfolio-app-frontend-v3
+          image: harshvrm10/portfolio-app-repo:portfolio-app-frontend-v13
           ports:
           - containerPort: 3000
 

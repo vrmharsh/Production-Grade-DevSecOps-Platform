@@ -12,6 +12,9 @@
   "author": "Harsh Verma",
   "license": "ISC",
   "dependencies": {
+    "@opentelemetry/auto-instrumentations-node": "^0.76.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.218.0",
+    "@opentelemetry/sdk-node": "^0.218.0",
     "bcrypt": "^5.0.1",
     "bcryptjs": "^2.4.3",
     "concurrently": "^7.3.0",

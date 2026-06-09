@@ -1,0 +1,33 @@
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: ${env:MY_POD_IP}:4317
+
+        http:
+          endpoint: ${env:MY_POD_IP}:4318
+
+          cors:
+            allowed_origins:
+              - "http://prod-blue-green.internal"
+              - "http://stage-canary.internal"
+              - "http://dev-rolling-update.internal"
+
+  processors:
+    batch: {}
+
+  exporters:
+    otlp:
+      endpoint: tempo.monitoring:4317
+      tls:
+        insecure: true
+
+    debug: {}
+
+  service:
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [otlp]

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+
+kind: Deployment
+
+# deployment because here the kube-state-metrics can speak with api server in the control plane for the metrics for the pods and all so we go with deployment set and not daemon set.
+
+metadata:
+   name: "manual-kube-state-metrics"
+   namespace: "prod-blue-green"
+   labels:
+    app: "manual-kube-state-metrics-label"
+
+spec:
+   replicas: 1
+
+   selector:
+    matchLabels:
+      app: "manual-kube-state-metrics-label"
+    
+    
+   template:
+    
+    metadata:
+      labels:
+       app: "manual-kube-state-metrics-label"
+
+    spec:
+      containers:
+       - name: "manual-kube-state-metrics-label-for-blue-green"
+         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0
+         ports:
+         - containerPort: 8080

@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: config-map-for-fluent-bit
+  namespace: monitoring
+
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         1
+        Daemon        Off
+        Log_Level     info
+        Parsers_File  parsers.conf
+
+    @INCLUDE input.conf
+    @INCLUDE filter.conf
+    @INCLUDE output.conf
+
+  input.conf: |
+    [INPUT]
+        Name              tail
+        Path              /var/log/containers/*.log
+        Parser            cri
+        Tag               kube.var.log.containers.*
+        Refresh_Interval  5
+        Mem_Buf_Limit     10MB
+        Skip_Long_Lines   On
+        DB                /var/log/flb_kube.db
+
+        Ignore_Older      1h
+        Rotate_Wait       30
+
+
+  filter.conf: |
+    [FILTER]
+        Name                  kubernetes
+        Match                 kube.*
+        Kube_Tag_Prefix       kube.
+        Kube_URL              https://kubernetes.default.svc:443
+        Merge_Log             On
+        Keep_Log              Off
+        K8S-Logging.Parser    On
+        K8S-Logging.Exclude   Off
+
+  output.conf: |
+    [OUTPUT]
+        Name                     loki
+        Match                    kube.*
+        Host                     loki-service
+        Port                     3100
+        Uri                      /loki/api/v1/push
+        Labels                   job=fluent-bit
+        Auto_Kubernetes_Labels   On
+        Retry_Limit              False
+
+  parsers.conf: |
+    [PARSER]
+        Name         docker
+        Format       json
+        Time_Key     time
+        Time_Format  %Y-%m-%dT%H:%M:%S.%L
+
+    [PARSER]
+        Name         cri
+        Format       regex
+        Regex        ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key     time
+        Time_Format  %Y-%m-%dT%H:%M:%S.%L%z

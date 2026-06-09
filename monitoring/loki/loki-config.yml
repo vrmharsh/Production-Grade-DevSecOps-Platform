@@ -1,0 +1,64 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+
+common:
+  path_prefix: /loki/storage
+
+  replication_factor: 1
+
+  ring:
+    kvstore:
+      store: inmemory
+
+# most important section is the below config:
+schema_config:
+  configs:
+    - from: "2026-01-01"
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+
+      index:
+        prefix: loki_index_
+        period: 24h
+
+storage_config:
+
+  filesystem:
+    directory: /loki/storage/chunks
+
+  tsdb_shipper:
+    active_index_directory: /loki/storage/index
+    cache_location: /loki/storage/index_cache
+
+ingester:
+
+  wal:
+    enabled: true
+    dir: /loki/storage/wal
+
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+  max_chunk_age: 1h
+
+limits_config:
+  retention_period: 168h
+
+compactor:
+  working_directory: /loki/storage/compactor
+
+  retention_enabled: true
+
+  delete_request_store: filesystem
+
+ruler:
+  storage:
+    type: local
+
+    local:
+      directory: /loki/storage/rules
+
+  rule_path: /loki/storage/rules-temp

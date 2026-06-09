@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
        - name: "portfolio-backend-container"
-         image: harshvrm10/portfolio-app-repo:portfolio-app-backend-v4
+         image: harshvrm10/portfolio-app-repo:portfolio-app-backend-v9
          ports:
          - containerPort: 5000
 

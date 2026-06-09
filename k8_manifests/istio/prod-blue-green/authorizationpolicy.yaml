@@ -1,0 +1,41 @@
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+
+metadata:
+  name: backend-blue-authz
+  namespace: prod-blue-green
+
+spec:
+  selector:
+    matchLabels:
+      app: backend-blue-deployment-label
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/prod-blue-green/sa/default
+
+---
+
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+
+metadata:
+  name: backend-green-authz
+  namespace: prod-blue-green
+
+spec:
+  selector:
+    matchLabels:
+      app: backend-green-deployment-label
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/prod-blue-green/sa/default
