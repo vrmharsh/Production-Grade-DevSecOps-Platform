@@ -20,3 +20,5 @@ Tech Stack:
 - SonarQube
 - Semgrep
 - GitHub Actions
+- GitHub Actions
+
