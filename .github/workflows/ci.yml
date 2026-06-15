@@ -1,0 +1,112 @@
+name: CI pipelines
+
+on:
+ pull_request:
+  branches:
+   - main
+ push:
+  branches:
+   - main
+
+# two jobs mens parallel jobs so over all pipeline is faster.
+jobs:
+ frontend-build-and-test:
+#  runs-on: ubuntu-latest   # Full Ubuntu VM (currently maps to ubuntu-22.04)
+   runs-on: 
+    - self-hosted
+    - devsecops
+
+   steps:
+# a vm is created when pipeline is triggered 
+# and it is empty, so first step is that it needs the do git clone repository which is handled by checkout stage.   
+   - name: Checkout Code
+     uses: actions/checkout@v4
+
+   - name: setup node js
+     uses: actions/setup-node@v4
+     with: 
+      node-version: 18
+      cache: npm
+      cache-dependency-path: frontend/package-lock.json
+
+# the above method is automatic because here git-hub manages the things.
+
+   - name: install frontend dependencies
+     working-directory: frontend
+     run: npm ci #npm install
+# npm ci is faster, removed the previous installed dpendencies, faster, make sure to download the dpendencies that matches exaclty the code for example node version 18 which currently the application is written in.
+   
+   - name: build frontend application
+     working-directory: frontend
+     run: npm run build
+    
+#   - name: run frontend tests
+#     run: npm test
+
+
+ backend-build-and-test:
+#  runs-on: ubuntu-latest 
+  runs-on:
+   - self-hosted
+   - devsecops
+  
+  steps:
+   - name: checkout code
+     uses: actions/checkout@v4
+
+   - name: setup backend node js
+     uses: actions/setup-node@v4
+     with: 
+      node-version: 18
+      cache: npm
+      cache-dependency-path: backend/package-lock.json
+  
+   - name: install backend dependencies
+     working-directory: backend
+     run: npm ci #npm install
+
+#   - name: run backend test
+#     run: npm run test
+
+
+
+ sonarqube:
+  name: static code analysis
+  
+  runs-on:
+   - self-hosted
+   - devsecops
+  
+  needs:
+   - frontend-build-and-test
+   - backend-build-and-test
+
+  steps:
+   - name: code checkout stage
+     uses: actions/checkout@v4
+
+   - name: sonarqube scanning
+     uses: SonarSource/sonarqube-scan-action@v5
+     env: 
+      SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+      SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
+   
+  
+  
+# semgrep 
+
+# push artifacts to nexus
+
+# docker image build
+
+# trivy scanning
+
+# docker image push to ecr or docker hub
+
+
+
+ 
+  
+
+
+
