@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import "./Contact.css";
 import placeholder from "./Images/PlaceHolder.png";
-import { useNavigate} from "react-router-dom";
+//import { useNavigate} from "react-router-dom";
 
 const Contact = () => {
 
-  const navigate = useNavigate();
+//  const navigate = useNavigate();
 
   const [name, updatedName] = useState("");
   const [email, updatedEmail] = useState("");
@@ -34,9 +34,12 @@ const Contact = () => {
     const data = await response.json();
     console.log("Response:", data);
 
-    if(response.status==201){
+    if(response.status===201){
      console.log(response.status)
-     navigate("/successPage");
+//     navigate("/successPage");
+     setSuccessMessage(
+      "Thank you for contacting us. We will get back to you soon"
+     );
     }
 
   } catch (error){

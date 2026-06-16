@@ -101,6 +101,7 @@ const About = () => {
               className="facebook"
               href="https://www.facebook.com/harsh.verma.7140/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               <FaFacebookSquare />
             </a>
@@ -111,13 +112,14 @@ const About = () => {
               className="instagram"
               href="https://www.instagram.com/harsh__vrm/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               <FaInstagramSquare />
             </a>
           </li>
 
           <li>
-            <a className="github" href="https://github.com/" target="_blank">
+            <a className="github" href="https://github.com/" target="_blank" rel="noopener noreferrer">
               <FaGithub />
             </a>
           </li>
@@ -127,6 +129,7 @@ const About = () => {
               className="linkedin"
               href="https://www.linkedin.com/in/harsh-verma-8aa66a1b3/"
               target="_blank"
+              rel="noopener noreferrer"
             >
               <FaLinkedin />
             </a>
