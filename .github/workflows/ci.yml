@@ -85,9 +85,16 @@ jobs:
   steps:
    - name: code checkout stage
      uses: actions/checkout@v4
+   
+   - name: debug sonarqube connectivity
+     env: 
+      SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
+     run: | 
+       echo 'host url is $SONAR_HOST_URL'
+       curl -v $SONAR_HOST_URL/api/system/status
 
    - name: sonarqube scanning
-     uses: SonarSource/sonarqube-scan-action@v5
+     uses: SonarSource/sonarqube-scan-action@v6
      env: 
       SONAR_HOST_URL: ${{secrets.SONAR_HOST_URL}}
       SONAR_TOKEN: ${{secrets.SONAR_TOKEN}}
