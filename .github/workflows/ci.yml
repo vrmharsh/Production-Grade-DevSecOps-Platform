@@ -1,5 +1,6 @@
 name: CI pipelines
 
+# below means only run if the target branch is main.
 on:
  pull_request:
   branches:
