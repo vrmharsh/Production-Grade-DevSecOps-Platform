@@ -25,7 +25,8 @@ const Projects = () => {
         <div className="col">
           <a
             href={"https://fathomless-citadel-64363.herokuapp.com/"}
-            target="_blank"
+            target="_blank" 
+            rel="noopener noreferrer"
           >
             <img src={Campsites} className="he" alt="Campsites"></img>
           </a>
