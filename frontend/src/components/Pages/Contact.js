@@ -36,7 +36,10 @@ const Contact = () => {
 
     if(response.status==201){
      console.log(response.status)
-     navigate("/successPage");
+//     navigate("/successPage");
+     setSuccessMessage(
+      "Thank you for contacting us. We will get back to you soon"
+     );
     }
 
   } catch (error){
