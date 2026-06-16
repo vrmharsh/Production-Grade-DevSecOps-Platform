@@ -84,7 +84,7 @@ jobs:
 
   steps:
    - name: code checkout stage
-     uses: actions/checkout@v4
+     uses: actions/checkout@v6
    
    - name: debug sonarqube connectivity
      env: 
