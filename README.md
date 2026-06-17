@@ -6,6 +6,7 @@ Integrated Semgrep OSS into GitHub Actions
 Uploaded SARIF results to GitHub Security Dashboard
 Reduced Semgrep findings from 33 → 21
 Implemented dependency caching
+
 Frontend Cache Hit
 Backend Cache Hit
 
