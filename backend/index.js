@@ -4,6 +4,7 @@ require("./tracing");
 const express = require('express');
 
 const app = express();
+app.disable("x-powered-by");
 
 const cors = require('cors');
 const dotenv=require('dotenv');

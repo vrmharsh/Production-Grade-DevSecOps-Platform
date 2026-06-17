@@ -101,7 +101,46 @@ jobs:
    
   
   
-# semgrep 
+ semgrep:
+  name: SAST
+
+  runs-on:
+   - self-hosted
+   - devsecops
+
+  needs:
+   - frontend-build-and-test
+   - backend-build-and-test
+
+  permissions:
+    security-events: write
+    actions: read
+    contents: read
+
+  steps:
+   - name: code checkout
+     uses: actions/checkout@v4
+
+   - name: semgrep verification
+     run: semgrep --version
+
+   - name: semgrep scanning
+     run: | 
+      semgrep scan --config auto \
+      --sarif \
+      --output semgrep.sarif .
+
+   - name: SARIF Upload
+     uses: github/codeql-action/upload-sarif@v3
+     with: 
+       sarif_file: semgrep.sarif
+
+# below has been commented because semgrep cloud account is not used over here. But Semgrep OSS and SARIF report generated and given to git-hub security for the analysis.
+#     env:
+#      semgrep_host_url: ${{secrets.semgrep_host_url}}
+#      semgrep_host_token: ${{secrets.semgrep_host_token}}
+     
+
 
 # push artifacts to nexus
 
