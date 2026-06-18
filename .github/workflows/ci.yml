@@ -43,6 +43,16 @@ jobs:
     
 #   - name: run frontend tests
 #     run: npm test
+   
+   - name: package the frontend build
+     run: |
+       tar -czf frontend-build.tar.gz frontend/build
+
+   - name: upload the frontend artifacts
+     uses: actions/upload-artifact@v6
+     with:
+       name: frontend-build
+       path: frontend-build.tar.gz
 
 
  backend-build-and-test:
@@ -68,8 +78,16 @@ jobs:
 
 #   - name: run backend test
 #     run: npm run test
+   
+   - name: package the backend build
+     run: |
+       tar -czf backend-build.tar.gz backend
 
-
+   - name: upload the backend artifacts
+     uses: actions/upload-artifact@v6
+     with:
+      name: backend-build
+      path: backend-build.tar.gz
 
  sonarqube:
   name: static code analysis
@@ -143,6 +161,60 @@ jobs:
 
 
 # push artifacts to nexus
+  
+ nexus:
+  name: artifacts
+
+  runs-on:
+   - self-hosted
+   - devsecops
+   
+  needs:
+   - sonarqube
+   - semgrep
+
+  steps:
+   - name: code checkout
+     uses: actions/checkout@v6
+
+   - name: download the frontend artifacts from git hub
+     uses: actions/download-artifact@v6
+     with: 
+       name: frontend-build
+       path: artifacts/frontend
+
+   - name: download the backend artifacts from git hub
+     uses: actions/download-artifact@v6
+     with: 
+       name: backend-build
+       path: artifacts/backend
+   
+   - name: verify the download file
+     run: | 
+      pwd 
+      ls -lh
+
+   - name: upload frontend artifacts to nexus
+     env:
+      NEXUS_USERNAME: ${{secrets.NEXUS_USERNAME}}
+      NEXUS_PASSWORD: ${{secrets.NEXUS_PASSWORD}}
+      NEXUS_URL: ${{secrets.NEXUS_URL}}
+
+     run: | 
+       curl -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
+         --upload-file artifacts/frontend/frontend-build.tar.gz \
+         "$NEXUS_URL/repository/devsecops-artifacts/frontend-build.tar.gz"
+       
+   - name: upload backend artifacts to nexus
+     env:
+       NEXUS_USERNAME: ${{secrets.NEXUS_USERNAME}}
+       NEXUS_PASSWORD: ${{secrets.NEXUS_PASSWORD}}
+       NEXUS_URL: ${{secrets.NEXUS_URL}} 
+
+     run: | 
+       curl -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
+         --upload-file artifacts/backend/backend-build.tar.gz \
+         "$NEXUS_URL/repository/devsecops-artifacts/backend-build.tar.gz"
 
 # docker image build
 
