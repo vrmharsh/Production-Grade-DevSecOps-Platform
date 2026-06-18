@@ -170,8 +170,8 @@ jobs:
    - devsecops
    
   needs:
-   - frontend-build-and-test
-   - backend-build-and-test
+   - sonarqube
+   - semgrep
 
   steps:
    - name: code checkout
@@ -192,7 +192,7 @@ jobs:
    - name: verify the download file
      run: | 
       pwd 
-      ls -R
+      ls -lh
 
    - name: upload frontend artifacts to nexus
      env:
