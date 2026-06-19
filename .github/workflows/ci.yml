@@ -313,14 +313,16 @@ jobs:
        harshvrm10/production-grade-pipeline-images:backend-latest
 
     - name: upload frontend-trivy SARIF report to git
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       with: 
         sarif_file: frontend-trivy.sarif
+        category: frontend-trivy
 
     - name: upload backend-trivy SARIF report to git
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       with: 
         sarif_file: backend-trivy.sarif
+        category: backend-trivy
 
 
 # docker image push to ecr or docker hub
