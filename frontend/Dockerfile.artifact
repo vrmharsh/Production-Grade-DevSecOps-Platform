@@ -1,0 +1,19 @@
+#this docker file is nexus driven:
+FROM nginx:alpine
+
+# default path from where nginx loads the contents and it can be directly written in the COPY command because this is the default directory, if any other path would be needed then we need to mention that.
+# WORKDIR /usr/share/nginx/html
+
+COPY frontend/build/ /usr/share/nginx/html
+
+EXPOSE 80
+
+#nginx runs two process Foreground process and background process and if nginx goes to the backgorund process then docker container will stop. So, we say daemon off meaning do not go to the background process.
+CMD ["nginx", "-g", "daemon off;"]
+
+#Frontend "build artifact" contains only static files.
+#Using Node runtime is unnecessary.
+#Nginx is optimized for serving static content,
+#results in smaller images,
+#lower memory usage,
+#faster startup time.
