@@ -81,7 +81,9 @@ jobs:
    
    - name: package the backend build
      run: |
-       tar -czf backend-build.tar.gz backend
+       tar \
+        --exclude='backend/node_modules' \
+        -czf backend-build.tar.gz backend
 
    - name: upload the backend artifacts
      uses: actions/upload-artifact@v6
@@ -218,7 +220,110 @@ jobs:
 
 # docker image build
 
-# trivy scanning
+ docker-build: 
+   name: docker image build
+
+   runs-on: 
+    - self-hosted
+    - devsecops
+
+   needs:
+    - nexus 
+
+   steps:
+    - name: code checkout
+      uses: actions/checkout@v6
+
+    - name: download frontend artifacts from nexus
+      env:
+       NEXUS_USERNAME: ${{secrets.NEXUS_USERNAME}}
+       NEXUS_PASSWORD: ${{secrets.NEXUS_PASSWORD}}
+       NEXUS_URL: ${{secrets.NEXUS_URL}}
+
+      run: | 
+       curl -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
+       -O "$NEXUS_URL/repository/devsecops-artifacts/frontend-build.tar.gz"
+        
+    - name: download backend artifacts from nexus
+      env:
+       NEXUS_USERNAME: ${{secrets.NEXUS_USERNAME}}
+       NEXUS_PASSWORD: ${{secrets.NEXUS_PASSWORD}}
+       NEXUS_URL: ${{secrets.NEXUS_URL}}
+
+      run: | 
+       curl -u "$NEXUS_USERNAME:$NEXUS_PASSWORD" \
+       -O "$NEXUS_URL/repository/devsecops-artifacts/backend-build.tar.gz"   
+
+    - name: unzip the frontend artifacts
+      run: |
+       tar -xzf frontend-build.tar.gz
+
+    - name: unzip the backend artifacts
+      run: |
+       tar -xzf backend-build.tar.gz
+
+
+    - name: frontend docker image build
+      run: | 
+       docker build \
+       -t harshvrm10/production-grade-pipeline-images:frontend-latest \
+       -f frontend/Dockerfile.artifact .  
+
+    - name: backend docker image build
+      run: | 
+       docker build \
+       -t harshvrm10/production-grade-pipeline-images:backend-latest \
+       -f backend/Dockerfile.artifact .   
+
+ trivy-scanning: 
+   name: scanning docker images for vulnerability
+
+   runs-on: 
+    - self-hosted
+    - devsecops
+
+   needs:
+    - docker-build
+
+   steps:
+    - name: code-checkout
+      uses: actions/checkout@v6
+
+    - name: scanning the frontend docker image
+      run: | 
+       trivy image harshvrm10/production-grade-pipeline-images:frontend-latest
+
+    - name: scanning the backend docker image
+      run: |
+       trivy image harshvrm10/production-grade-pipeline-images:backend-latest
+
+    - name: generated frontend-trivy SARIF report 
+      run: | 
+       trivy image \
+       --format sarif \
+       --output frontend-trivy.sarif \
+       harshvrm10/production-grade-pipeline-images:frontend-latest
+
+
+    - name: generated backend-trivy SARIF report 
+      run: | 
+       trivy image \
+       --format sarif \
+       --output backend-trivy.sarif \
+       harshvrm10/production-grade-pipeline-images:backend-latest
+
+    - name: upload frontend-trivy SARIF report to git
+      uses: github/codeql-action/upload-sarif@v4
+      with: 
+        sarif_file: frontend-trivy.sarif
+        category: frontend-trivy
+
+    - name: upload backend-trivy SARIF report to git
+      uses: github/codeql-action/upload-sarif@v4
+      with: 
+        sarif_file: backend-trivy.sarif
+        category: backend-trivy
+
 
 # docker image push to ecr or docker hub
 

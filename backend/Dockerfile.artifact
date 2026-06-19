@@ -1,0 +1,31 @@
+#this docker file is nexus driven:
+
+ #stage-1:
+FROM node:18.19.1 AS build
+
+WORKDIR /my-backend
+
+# They are Blueprint of dependencies, they define what packages you need exact versions (lock file)
+COPY backend/package-lock.json backend/package.json ./
+
+RUN npm ci 
+
+COPY backend/ .
+
+#stage-2:
+FROM node:18.19.1-alpine
+
+WORKDIR /my-backend
+
+COPY --from=build /my-backend .
+
+EXPOSE 5000
+
+#CMD ["node","index.js"]
+
+# can only append by ENTRYPOINT, it can be overridden by "docker run --entrypoint bash image" but then node application will not start since node is replaced.
+ENTRYPOINT ["node"]   
+
+# can only over-ride with CMD
+CMD ["index.js"]
+         
