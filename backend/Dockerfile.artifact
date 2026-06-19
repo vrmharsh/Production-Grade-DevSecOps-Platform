@@ -6,7 +6,7 @@ FROM node:18.19.1 AS build
 WORKDIR /my-backend
 
 # They are Blueprint of dependencies, they define what packages you need exact versions (lock file)
-COPY backend/package-lock.json package.json ./
+COPY backend/package-lock.json backend/package.json ./
 
 RUN npm ci 
 
