@@ -325,7 +325,6 @@ jobs:
         category: backend-trivy
 
 
-# docker image push to ecr or docker hub
 
  docker-image-push:
   
