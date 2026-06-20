@@ -345,18 +345,15 @@ jobs:
       DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
 
      run: |
-      echo "$DOCKER_PASSWORD"
-      docker login \
-      -u "$DOCKER_USERNAME" \ 
+      echo "$DOCKER_PASSWORD" | docker login \
+      -u "$DOCKER_USERNAME" \
       --password-stdin
 
    - name: frontend-image-push  
      run: |
-      docker push \ 
-      harshvrm10/production-grade-pipeline-images:frontend-latest
+      docker push harshvrm10/production-grade-pipeline-images:frontend-latest
 
    - name: backend-image-push  
      run: |
-      docker push \ 
-      harshvrm10/production-grade-pipeline-images:backend-latest
+      docker push harshvrm10/production-grade-pipeline-images:backend-latest
 
