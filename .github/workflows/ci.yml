@@ -325,12 +325,35 @@ jobs:
         category: backend-trivy
 
 
-# docker image push to ecr or docker hub
 
-
-
- 
+ docker-image-push:
   
+  runs-on:
+   - self-hosted
+   - devsecops
 
+  needs:
+   - trivy-scanning
 
+  steps: 
+   - name: code-checkout
+     uses: actions/checkout@v6
+
+   - name: docker login
+     env: 
+      DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+      DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+
+     run: |
+      echo "$DOCKER_PASSWORD" | docker login \
+      -u "$DOCKER_USERNAME" \
+      --password-stdin
+
+   - name: frontend-image-push  
+     run: |
+      docker push harshvrm10/production-grade-pipeline-images:frontend-latest
+
+   - name: backend-image-push  
+     run: |
+      docker push harshvrm10/production-grade-pipeline-images:backend-latest
 
