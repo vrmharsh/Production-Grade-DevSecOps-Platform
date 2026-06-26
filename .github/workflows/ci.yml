@@ -373,7 +373,6 @@ jobs:
 
 
  verify-image-updater:
- if: false
 
   runs-on:
     - self-hosted
@@ -439,8 +438,6 @@ jobs:
 
  verify-argocd-sync:
 
- if: false
-
   name: Verify ArgoCD Sync
 
   runs-on:
@@ -487,7 +484,7 @@ jobs:
         exit 1
 
  verify-k8s-rollout:
- if: false
+
   name: Verify Kubernetes Rollout
 
   runs-on:
