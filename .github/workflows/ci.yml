@@ -369,7 +369,7 @@ jobs:
       docker push harshvrm10/production-grade-pipeline-images:backend-${IMAGE_TAG}
 
 #CI is completed.
-#CD added below:
+
 
  verify-image-updater:
 
