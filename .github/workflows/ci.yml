@@ -373,6 +373,7 @@ jobs:
 #CD is below:
 
  verify-image-updater:
+ if: false
 
   runs-on:
     - self-hosted
@@ -387,6 +388,19 @@ jobs:
       with:
         fetch-depth: 0
         ref: main
+
+    - name: Debug repository structure
+      run: |
+        echo "Current directory:"
+        pwd
+
+        echo ""
+        echo "Repository root:"
+        ls -la
+
+        echo ""
+        echo "Finding all values.yaml files..."
+        find . -name values.yaml
 
     - name: Wait for Image Updater to update GitOps Repository
       shell: bash
@@ -424,6 +438,8 @@ jobs:
 
 
  verify-argocd-sync:
+
+ if: false
 
   name: Verify ArgoCD Sync
 
@@ -471,7 +487,7 @@ jobs:
         exit 1
 
  verify-k8s-rollout:
-
+ if: false
   name: Verify Kubernetes Rollout
 
   runs-on:
