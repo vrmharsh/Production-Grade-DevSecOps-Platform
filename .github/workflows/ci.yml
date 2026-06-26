@@ -373,8 +373,6 @@ jobs:
 
  verify-image-updater:
 
-  name: Verify Argo CD Image Updater
-
   runs-on:
     - self-hosted
     - devsecops
@@ -382,40 +380,45 @@ jobs:
   needs:
     - docker-image-push
 
-  timeout-minutes: 6
-
   steps:
-
-    - name: Checkout Repository
+    - name: Checkout GitOps Repository
       uses: actions/checkout@v4
-
-    - name: Set Image Tag
-      run: |
-        echo "IMAGE_TAG=v${{ github.run_number }}" >> $GITHUB_ENV
+      with:
+        fetch-depth: 0
+        ref: main
 
     - name: Wait for Image Updater to update GitOps Repository
       shell: bash
       run: |
 
-        echo "Waiting for Argo CD Image Updater..."
+        EXPECTED_TAG="${{ github.run_number }}"
+
+        echo "Waiting for Argo CD Image Updater to update GitOps repository..."
+        echo "Expected image tag: $EXPECTED_TAG"
 
         for i in {1..30}; do
 
-          git pull
+          git fetch origin main
 
-          if grep -q "backend-${IMAGE_TAG}" production-grade-gitops/environments/staging/values.yaml && \
-             grep -q "frontend-${IMAGE_TAG}" production-grade-gitops/environments/staging/values.yaml; then
-            echo "Argo CD Image Updater successfully updated GitOps repository."
+          git reset --hard origin/main
+
+          CURRENT_TAG=$(yq '.frontend.image.tag' environments/staging/values.yaml)
+
+          echo "Attempt $i"
+          echo "Current Tag : $CURRENT_TAG"
+          echo "Expected Tag: $EXPECTED_TAG"
+
+          if [[ "$CURRENT_TAG" == "$EXPECTED_TAG" ]]; then
+            echo "GitOps repository updated successfully."
             exit 0
           fi
 
-          echo "Waiting 10 seconds..."
-          sleep 10
+          echo "Image Updater has not updated the repository yet."
+          sleep 20
 
         done
 
-        echo "Image Updater did not update Git repository."
-
+        echo "Timed out waiting for Argo CD Image Updater."
         exit 1
 
 
