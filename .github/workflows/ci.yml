@@ -402,7 +402,7 @@ jobs:
 
           git reset --hard origin/main
 
-          CURRENT_TAG=$(yq '.frontend.image.tag' environments/staging/values.yaml)
+          CURRENT_TAG=$(yq '.frontend.image.tag' production-grade-gitops/environments/staging/values.yaml)
 
           echo "Attempt $i"
           echo "Current Tag : $CURRENT_TAG"
