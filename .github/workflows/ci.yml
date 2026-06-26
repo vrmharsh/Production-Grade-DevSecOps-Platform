@@ -261,18 +261,21 @@ jobs:
     - name: unzip the backend artifacts
       run: |
        tar -xzf backend-build.tar.gz
-
+    
+    - name: Set image tag
+      run: |
+       echo "IMAGE_TAG=v${{ github.run_number }}" >> $GITHUB_ENV
 
     - name: frontend docker image build
       run: | 
        docker build \
-       -t harshvrm10/production-grade-pipeline-images:frontend-latest \
+       -t harshvrm10/production-grade-pipeline-images:frontend-${IMAGE_TAG} \
        -f frontend/Dockerfile.artifact .  
 
     - name: backend docker image build
       run: | 
        docker build \
-       -t harshvrm10/production-grade-pipeline-images:backend-latest \
+       -t harshvrm10/production-grade-pipeline-images:backend-${IMAGE_TAG} \
        -f backend/Dockerfile.artifact .   
 
  trivy-scanning: 
@@ -289,20 +292,24 @@ jobs:
     - name: code-checkout
       uses: actions/checkout@v6
 
+    - name: Set Image Tag
+      run: |
+        echo "IMAGE_TAG=v${{ github.run_number }}" >> $GITHUB_ENV
+
     - name: scanning the frontend docker image
       run: | 
-       trivy image harshvrm10/production-grade-pipeline-images:frontend-latest
+       trivy image harshvrm10/production-grade-pipeline-images:frontend-${IMAGE_TAG}
 
     - name: scanning the backend docker image
       run: |
-       trivy image harshvrm10/production-grade-pipeline-images:backend-latest
+       trivy image harshvrm10/production-grade-pipeline-images:backend-${IMAGE_TAG}
 
     - name: generated frontend-trivy SARIF report 
       run: | 
        trivy image \
        --format sarif \
        --output frontend-trivy.sarif \
-       harshvrm10/production-grade-pipeline-images:frontend-latest
+       harshvrm10/production-grade-pipeline-images:frontend-${IMAGE_TAG}
 
 
     - name: generated backend-trivy SARIF report 
@@ -310,7 +317,7 @@ jobs:
        trivy image \
        --format sarif \
        --output backend-trivy.sarif \
-       harshvrm10/production-grade-pipeline-images:backend-latest
+       harshvrm10/production-grade-pipeline-images:backend-${IMAGE_TAG}
 
     - name: upload frontend-trivy SARIF report to git
       uses: github/codeql-action/upload-sarif@v4
@@ -338,6 +345,10 @@ jobs:
   steps: 
    - name: code-checkout
      uses: actions/checkout@v6
+   
+   - name: Set Image Tag
+     run: |
+       echo "IMAGE_TAG=v${{ github.run_number }}" >> $GITHUB_ENV
 
    - name: docker login
      env: 
@@ -351,9 +362,176 @@ jobs:
 
    - name: frontend-image-push  
      run: |
-      docker push harshvrm10/production-grade-pipeline-images:frontend-latest
+      docker push harshvrm10/production-grade-pipeline-images:frontend-${IMAGE_TAG}
 
    - name: backend-image-push  
      run: |
-      docker push harshvrm10/production-grade-pipeline-images:backend-latest
+      docker push harshvrm10/production-grade-pipeline-images:backend-${IMAGE_TAG}
 
+#CI is completed.
+
+
+
+ verify-image-updater:
+
+  runs-on:
+    - self-hosted
+    - devsecops
+
+  needs:
+    - docker-image-push
+
+  steps:
+    - name: Checkout GitOps Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        ref: main
+
+    - name: Debug repository structure
+      run: |
+        echo "Current directory:"
+        pwd
+
+        echo ""
+        echo "Repository root:"
+        ls -la
+
+        echo ""
+        echo "Finding all values.yaml files..."
+        find . -name values.yaml
+
+    - name: Wait for Image Updater to update GitOps Repository
+      shell: bash
+      run: |
+
+        EXPECTED_TAG="${{ github.run_number }}"
+
+        echo "Waiting for Argo CD Image Updater to update GitOps repository..."
+        echo "Expected image tag: $EXPECTED_TAG"
+
+        for i in {1..30}; do
+
+          git fetch origin main
+
+          git reset --hard origin/main
+
+          CURRENT_TAG=$(yq '.frontend.image.tag' production-grade-gitops/environments/staging/values.yaml)
+
+          echo "Attempt $i"
+          echo "Current Tag : $CURRENT_TAG"
+          echo "Expected Tag: $EXPECTED_TAG"
+
+          if [[ "$CURRENT_TAG" == "$EXPECTED_TAG" ]]; then
+            echo "GitOps repository updated successfully."
+            exit 0
+          fi
+
+          echo "Image Updater has not updated the repository yet."
+          sleep 20
+
+        done
+
+        echo "Timed out waiting for Argo CD Image Updater."
+        exit 1
+
+
+ verify-argocd-sync:
+
+  name: Verify ArgoCD Sync
+
+  runs-on:
+    - self-hosted
+    - devsecops
+
+  needs:
+    - verify-image-updater
+
+  timeout-minutes: 6
+
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Wait for ArgoCD to Sync
+      shell: bash
+      run: |
+
+        echo "Waiting for ArgoCD to sync application..."
+
+        for i in {1..30}; do
+
+          SYNC_STATUS=$(kubectl get application portfolio-staging -n argocd -o json | jq -r '.status.sync.status')
+          HEALTH_STATUS=$(kubectl get application portfolio-staging -n argocd -o json | jq -r '.status.health.status')
+
+          echo "Sync Status   : $SYNC_STATUS"
+          echo "Health Status : $HEALTH_STATUS"
+
+          if [[ "$SYNC_STATUS" == "Synced" && "$HEALTH_STATUS" == "Healthy" ]]; then
+            echo "Application synced successfully."
+            exit 0
+          fi
+
+          echo "Retrying in 10 seconds..."
+          sleep 10
+
+        done
+
+        echo "Timed out waiting for ArgoCD Sync."
+
+        kubectl get application portfolio-staging -n argocd -o yaml
+
+        exit 1
+
+ verify-k8s-rollout:
+
+  name: Verify Kubernetes Rollout
+
+  runs-on:
+    - self-hosted
+    - devsecops
+
+  needs:
+    - verify-argocd-sync
+
+  timeout-minutes: 10
+
+  steps:
+
+    - name: Verify Backend Stable Rollout
+      run: |
+        kubectl rollout status deployment/backend-stable \
+          -n stage-canary \
+          --timeout=300s
+
+    - name: Verify Backend Canary Rollout
+      run: |
+        kubectl rollout status deployment/backend-canary \
+          -n stage-canary \
+          --timeout=300s
+
+    - name: Verify Frontend Stable Rollout
+      run: |
+        kubectl rollout status deployment/frontend-stable \
+          -n stage-canary \
+          --timeout=300s
+
+    - name: Verify Frontend Canary Rollout
+      run: |
+        kubectl rollout status deployment/frontend-canary \
+          -n stage-canary \
+          --timeout=300s
+
+    - name: Verify Pods
+      run: |
+        kubectl get pods -n stage-canary -o wide
+
+    - name: Verify Deployments
+      run: |
+        kubectl get deployments -n stage-canary
+
+    - name: Verify Services
+      run: |
+        kubectl get svc -n stage-canary
+
+ 

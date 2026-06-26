@@ -1,0 +1,24 @@
+{{- if eq .Values.deploymentStrategy "canary" }}
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+  name: "frontend-canary-service"
+  namespace: {{ .Values.namespace }}
+
+spec:
+
+  selector:
+    app: "frontend-canary-label"
+
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+   
+
+  type: ClusterIP 
+
+{{- end }}

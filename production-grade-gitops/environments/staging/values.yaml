@@ -1,0 +1,58 @@
+# Argo Image Updater
+namespace: stage-canary
+
+deploymentStrategy: canary
+
+backend:
+  stable:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: backend-v1
+
+    replicaCount: 1
+
+    hpa:
+      minReplicas: 1
+      maxReplicas: 3
+      cpuUtilization: 50
+      memoryUtilization: 50
+
+  canary:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: backend-v1
+
+    replicaCount: 1
+
+    hpa:
+      minReplicas: 1
+      maxReplicas: 3
+      cpuUtilization: 50
+      memoryUtilization: 50
+
+frontend:
+  stable:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: frontend-v1
+
+    replicaCount: 1
+
+    hpa:
+      minReplicas: 1
+      maxReplicas: 3
+      cpuUtilization: 50
+      memoryUtilization: 50
+
+  canary:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: frontend-v1
+
+    replicaCount: 1
+
+    hpa:
+      minReplicas: 1
+      maxReplicas: 3
+      cpuUtilization: 50
+      memoryUtilization: 50

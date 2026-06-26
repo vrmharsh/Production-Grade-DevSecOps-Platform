@@ -1,0 +1,80 @@
+{{- if eq .Values.deploymentStrategy "blueGreen" }}
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+   name: "backend-blue-deployment"
+   namespace: {{ .Values.namespace }}
+   labels: 
+     app: backend-blue-deployment-label
+
+spec:
+   
+   replicas: {{ .Values.backend.blue.replicaCount }}
+      
+   selector: 
+     matchLabels:
+       app: backend-blue-deployment-label
+       version: blue
+
+   template:
+
+     metadata:
+       labels: 
+         app: backend-blue-deployment-label
+         version: blue
+
+     spec:
+       containers: 
+       - name: "backend-blue-container"
+         image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.blue.imageTag }}"
+         ports:
+          - containerPort: 5000     
+
+         resources:
+          requests:
+           cpu: "50m"
+           memory: "128Mi"
+
+          limits:
+           cpu: "200m"
+           memory: "256Mi"
+
+         readinessProbe:
+           httpGet:
+             path: /health
+             port: 5000
+           initialDelaySeconds: 15
+           periodSeconds: 20
+            
+           timeoutSeconds: 5 
+           successThreshold: 1
+           failureThreshold: 3
+
+         livenessProbe:
+           httpGet:
+             path: /health
+             port: 5000
+           initialDelaySeconds: 15
+           periodSeconds: 20
+            
+           timeoutSeconds: 5 
+           failureThreshold: 3
+         
+         env:
+          - name: PORT
+            value: "5000"
+
+          - name: MYDATABASE
+            valueFrom:
+             secretKeyRef:
+               name: "backend-secrets-bg" 
+               key: MYDATABASE
+      
+{{- end }}
+      
+      
+     
+

@@ -1,0 +1,24 @@
+{{- if eq .Values.deploymentStrategy "canary" }}
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+  name: "backend-stable-service"
+  namespace: {{ .Values.namespace }}
+
+spec:
+
+  selector:
+    app: "backend-stable-label"
+
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+ 
+
+  type: ClusterIP
+
+{{- end }}

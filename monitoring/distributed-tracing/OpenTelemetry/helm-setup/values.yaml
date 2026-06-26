@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: otel/opentelemetry-collector-contrib
 
-alternateConfig: true
+#alternateConfig: true
 
 ports:
   otlp:

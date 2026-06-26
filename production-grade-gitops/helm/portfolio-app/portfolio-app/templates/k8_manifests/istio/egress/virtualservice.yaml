@@ -1,0 +1,20 @@
+{{- if eq .Values.deploymentStrategy "blueGreen" }}
+
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+
+metadata:
+  name: httpbin-vs
+
+spec:
+  hosts:
+  - httpbin.org
+
+  http:
+  - route:
+    - destination:
+        host: httpbin.org
+        port:
+          number: 80
+
+{{- end }}

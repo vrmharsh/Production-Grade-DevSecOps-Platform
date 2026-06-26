@@ -1,0 +1,78 @@
+{{- if eq .Values.deploymentStrategy "canary" }}
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+   name: "backend-stable"
+   namespace: {{ .Values.namespace}}
+   labels: 
+    app: "backend-stable-label"
+
+spec:
+
+    replicas: {{ .Values.backend.stable.replicaCount }}
+
+    selector:
+     matchLabels:
+      app: "backend-stable-label"
+
+    template:
+      
+     metadata:
+      labels:
+       app: "backend-stable-label"
+
+     spec:
+        containers:
+        - name: "backend-stable-container"
+          image: "{{ .Values.backend.stable.image.repository }}:{{ .Values.backend.stable.image.tag }}"
+          ports:
+          - containerPort: 5000
+
+          resources:
+           requests:
+             cpu: "200m"
+             memory: "500Mi"
+           limits:
+             cpu: "500m"
+             memory: "1Gi"
+        
+          readinessProbe:
+           httpGet:
+              path: /health
+              port: 5000
+
+           initialDelaySeconds: 20
+           periodSeconds: 15
+
+           successThreshold: 1
+           timeoutSeconds: 5
+           failureThreshold: 3
+
+          livenessProbe:
+           httpGet:
+              path: /health
+              port: 5000
+           initialDelaySeconds: 20
+           periodSeconds: 15
+
+           successThreshold: 1
+           timeoutSeconds: 5
+           failureThreshold: 3
+
+          env:
+           - name: PORT
+             valueFrom:
+              configMapKeyRef:
+               name: "backend-config-port"
+               key: PORT
+
+           - name: "MYDATABASE"
+             valueFrom:
+              secretKeyRef:
+               name: "backend-secrets-canary-stable"
+               key: MYDATABASE
+
+{{- end }}

@@ -1,0 +1,24 @@
+{{- if eq .Values.deploymentStrategy "blueGreen" }}
+
+apiVersion: v1
+
+kind: Service
+
+metadata:
+   name: "blue-green-frontend-service"
+   namespace: {{ .Values.namespace }}
+spec:  
+   
+   selector: 
+    app: frontend-green-deployment-label
+    version: green
+
+   ports:
+     - protocol: TCP
+       port: 80
+       targetPort: 3000
+
+   type: ClusterIP
+   
+{{- end }}
+   
