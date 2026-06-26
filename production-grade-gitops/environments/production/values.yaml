@@ -1,0 +1,33 @@
+namespace: prod-blue-green
+
+deploymentStrategy: blueGreen
+
+backend:
+  blue:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: backend-v1
+
+    replicaCount: 1
+
+  green:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: backend-v1
+
+    replicaCount: 1
+
+frontend:
+  blue:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: frontend-v1
+
+    replicaCount: 1
+
+  green:
+    image:
+      repository: harshvrm10/production-grade-pipeline-images
+      tag: frontend-v1
+
+    replicaCount: 1

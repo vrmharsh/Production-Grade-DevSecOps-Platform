@@ -1,0 +1,87 @@
+{{- if eq .Values.deploymentStrategy "blueGreen" }}
+
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: prod-blue-green-vs
+  namespace: prod-blue-green
+
+spec:
+  hosts:
+    - prod-blue-green.internal
+
+  gateways:
+    - prod-blue-green-gateway
+
+  http:
+
+    # Dev Users -> Green + Fault Injection
+    - match:
+        - headers:
+            x-user-type:
+              exact: dev
+
+      fault:
+        delay:
+          percentage:
+            value: 100
+          fixedDelay: 20s
+
+      timeout: 3s
+
+      retries:
+        attempts: 3
+        perTryTimeout: 1s
+        retryOn: 5xx
+
+      route:
+        - destination:
+            host: blue-green-frontend-service
+            subset: green
+            port:
+              number: 80
+
+    # Beta Users -> Green
+    - match:
+        - headers:
+            x-user-type:
+              exact: beta
+
+      timeout: 3s
+
+      retries:
+        attempts: 3
+        perTryTimeout: 1s
+        retryOn: 5xx
+
+      route:
+        - destination:
+            host: blue-green-frontend-service
+            subset: green
+            port:
+              number: 80
+
+    # Everyone Else
+    - timeout: 3s
+
+      retries:
+        attempts: 3
+        perTryTimeout: 1s
+        retryOn: 5xx
+
+      route:
+        - destination:
+            host: blue-green-frontend-service
+            subset: blue
+            port:
+              number: 80
+          weight: 0
+
+        - destination:
+            host: blue-green-frontend-service
+            subset: green
+            port:
+              number: 80
+          weight: 100
+
+{{- end }}

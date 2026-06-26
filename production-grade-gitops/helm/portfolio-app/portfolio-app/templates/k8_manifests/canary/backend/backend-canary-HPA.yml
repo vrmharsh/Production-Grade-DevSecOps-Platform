@@ -1,0 +1,36 @@
+{{- if eq .Values.deploymentStrategy "canary" }}
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+
+metadata:
+  name: "backend-canary-hpa"
+  namespace: {{ .Values.namespace }}
+
+spec:
+
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: "backend-canary"
+
+  minReplicas: {{ .Values.backend.canary.hpa.minReplicas }}
+  maxReplicas: {{ .Values.backend.canary.hpa.maxReplicas }}
+
+  metrics:
+  
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.backend.canary.hpa.cpuUtilization }}
+
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.backend.canary.hpa.memoryUtilization }}
+
+{{- end }}

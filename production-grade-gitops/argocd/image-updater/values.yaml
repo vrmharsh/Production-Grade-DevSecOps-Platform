@@ -1,0 +1,30 @@
+config:
+  logLevel: info
+
+  registries:
+    - name: Docker Hub
+      prefix: docker.io
+      api_url: https://registry-1.docker.io
+      ping: yes
+      defaultns: harshvrm10
+
+git:
+  writeBackMethod: git
+  branch: main
+
+  ssh:
+    privateKeySecret:
+      name: ssh-git-creds
+      key: sshPrivateKey
+
+    knownHostsSecret:
+      name: ssh-git-creds
+      key: known_hosts
+
+  commitUser: Argo CD Image Updater
+  commitEmail: image-updater@argocd.local
+
+extraArgs:
+  - --interval=1m
+
+authScripts: {}

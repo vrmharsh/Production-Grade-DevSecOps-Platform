@@ -1,0 +1,12 @@
+{{- if eq .Values.deploymentStrategy "blueGreen" }}
+
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+
+metadata:
+  name: httpbin-dr
+
+spec:
+  host: httpbin.org
+
+{{- end }}

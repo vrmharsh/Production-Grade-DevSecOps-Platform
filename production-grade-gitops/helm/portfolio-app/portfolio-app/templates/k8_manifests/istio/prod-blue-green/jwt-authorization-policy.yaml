@@ -1,0 +1,18 @@
+{{- if eq .Values.deploymentStrategy "blueGreen" }}
+
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+
+metadata:
+  name: require-jwt
+  namespace: prod-blue-green
+
+spec:
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+
+{{- end }}
