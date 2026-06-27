@@ -370,7 +370,7 @@ jobs:
 
 #CI is completed.
 
-
+#CD is below:
 
  verify-image-updater:
 
