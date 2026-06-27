@@ -4,11 +4,11 @@ helm:
     value: harshvrm10/production-grade-pipeline-images
     forcestring: true
   - name: backend.stable.image.tag
-    value: backend-v38
+    value: backend-v40
     forcestring: true
   - name: frontend.stable.image.repository
     value: harshvrm10/production-grade-pipeline-images
     forcestring: true
   - name: frontend.stable.image.tag
-    value: frontend-v38
+    value: frontend-v40
     forcestring: true
