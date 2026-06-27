@@ -405,26 +405,35 @@ jobs:
       shell: bash
       run: |
 
-        EXPECTED_TAG="${{ github.run_number }}"
+        FRONTEND_EXPECTED_TAG="frontend-v${{ github.run_number }}"
+        BACKEND_EXPECTED_TAG="backend-v${{ github.run_number }}"
 
-        echo "Waiting for Argo CD Image Updater to update GitOps repository..."
-        echo "Expected image tag: $EXPECTED_TAG"
+        echo "Waiting for Argo CD Image Updater..."
+        echo "Expected Frontend Tag : $FRONTEND_EXPECTED_TAG"
+        echo "Expected Backend Tag  : $BACKEND_EXPECTED_TAG"
 
         for i in {1..30}; do
 
           git fetch origin main
-
           git reset --hard origin/main
 
-          CURRENT_TAG=$(yq '.frontend.image.tag' production-grade-gitops/environments/staging/values.yaml)
+          FRONTEND_CURRENT_TAG=$(yq -r '.frontend.stable.image.tag' production-grade-gitops/environments/staging/values.yaml)
 
+          BACKEND_CURRENT_TAG=$(yq -r '.backend.stable.image.tag' production-grade-gitops/environments/staging/values.yaml)
+
+          echo ""
           echo "Attempt $i"
-          echo "Current Tag : $CURRENT_TAG"
-          echo "Expected Tag: $EXPECTED_TAG"
+          echo "Frontend Current : $FRONTEND_CURRENT_TAG"
+          echo "Frontend Expected: $FRONTEND_EXPECTED_TAG"
+          echo "Backend Current  : $BACKEND_CURRENT_TAG"
+          echo "Backend Expected : $BACKEND_EXPECTED_TAG"
 
-          if [[ "$CURRENT_TAG" == "$EXPECTED_TAG" ]]; then
+          if [[ "$FRONTEND_CURRENT_TAG" == "$FRONTEND_EXPECTED_TAG" && \
+                "$BACKEND_CURRENT_TAG" == "$BACKEND_EXPECTED_TAG" ]]; then
+
             echo "GitOps repository updated successfully."
             exit 0
+
           fi
 
           echo "Image Updater has not updated the repository yet."

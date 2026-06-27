@@ -7,7 +7,7 @@ backend:
   stable:
     image:
       repository: harshvrm10/production-grade-pipeline-images
-      tag: frontend-v35
+      tag: backend-v35
 
     replicaCount: 1
 
@@ -20,7 +20,7 @@ backend:
   canary:
     image:
       repository: harshvrm10/production-grade-pipeline-images
-      tag: frontend-v35
+      tag: backend-v35
 
     replicaCount: 1
 
