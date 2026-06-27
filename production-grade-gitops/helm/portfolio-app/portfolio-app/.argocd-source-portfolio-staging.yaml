@@ -1,0 +1,14 @@
+helm:
+  parameters:
+  - name: backend.stable.image.repository
+    value: harshvrm10/production-grade-pipeline-images
+    forcestring: true
+  - name: backend.stable.image.tag
+    value: backend-v36
+    forcestring: true
+  - name: frontend.stable.image.repository
+    value: harshvrm10/production-grade-pipeline-images
+    forcestring: true
+  - name: frontend.stable.image.tag
+    value: frontend-v36
+    forcestring: true
