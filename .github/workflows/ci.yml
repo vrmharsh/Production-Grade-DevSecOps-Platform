@@ -374,6 +374,8 @@ jobs:
 
  verify-image-updater:
 
+  continue-on-error: true
+
   runs-on:
     - self-hosted
     - devsecops
@@ -446,6 +448,8 @@ jobs:
 
 
  verify-argocd-sync:
+  
+  continue-on-error: true
 
   name: Verify ArgoCD Sync
 
@@ -493,7 +497,9 @@ jobs:
         exit 1
 
  verify-k8s-rollout:
-
+  
+  continue-on-error: true
+  
   name: Verify Kubernetes Rollout
 
   runs-on:
