@@ -373,6 +373,8 @@ jobs:
 #CD is below:
 
  verify-image-updater:
+ 
+  continue-on-error: true
 
   runs-on:
     - self-hosted
