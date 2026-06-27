@@ -28,9 +28,11 @@ spec:
   project: default
 
   source:
-    repoURL: https://github.com/vrmharsh/Production-Grade-DevSecOps-Platform.git
+#    repoURL: https://github.com/vrmharsh/Production-Grade-DevSecOps-Platform.git
+    repoURL: git@github.com:vrmharsh/Production-Grade-DevSecOps-Platform.git
     targetRevision: main
-    path: helm/portfolio-app/portfolio-app
+#    path: helm/portfolio-app/portfolio-app
+    path: production-grade-gitops/helm/portfolio-app/portfolio-app
 
     helm:
       valueFiles:
