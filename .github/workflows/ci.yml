@@ -549,6 +549,7 @@ jobs:
       run: |
         kubectl get svc -n stage-canary
  
+# adding OWASP ZAP stage:
  zap-dast:
   name: OWASP ZAP DAST Scan
 
