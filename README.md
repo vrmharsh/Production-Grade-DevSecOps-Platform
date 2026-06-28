@@ -1,4 +1,4 @@
-Production-Grade DevSecOps Platform
+## Production-Grade DevSecOps Platform
 
 A production-inspired DevSecOps platform demonstrating an end-to-end CI/CD pipeline using GitHub Actions, Docker, Kubernetes, GitOps, security scanning, and observability.
 
