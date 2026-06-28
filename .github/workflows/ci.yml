@@ -548,5 +548,60 @@ jobs:
     - name: Verify Services
       run: |
         kubectl get svc -n stage-canary
-
  
+# adding OWASP ZAP stage:
+ zap-dast:
+  name: OWASP ZAP DAST Scan
+
+  runs-on:
+    - self-hosted
+    - devsecops
+
+  needs:
+    - verify-k8s-rollout
+
+  steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Wait for Application
+      run: |
+        echo "Waiting for application..."
+
+        for i in {1..30}; do
+
+          if curl -f http://stage-canary.internal >/dev/null 2>&1; then
+            echo "Application is reachable."
+            exit 0
+          fi
+
+          echo "Retry $i..."
+          sleep 10
+
+        done
+
+        echo "Application never became available."
+        exit 1
+
+    - name: Create Report Directory
+      run: mkdir -p zap-report
+
+    - name: Run OWASP ZAP Baseline Scan
+      run: |
+        docker run --rm \
+          --network host \
+          -v "${{ github.workspace }}/zap-report:/zap/wrk" \
+          ghcr.io/zaproxy/zaproxy:stable \
+          zap-baseline.py \
+          -t http://stage-canary.internal \
+          -I \
+          -r report.html \
+          -J report.json \
+          -x report.xml
+
+    - name: Upload ZAP Reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: zap-dast-report
+        path: zap-report
